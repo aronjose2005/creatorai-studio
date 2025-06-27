@@ -1,4 +1,4 @@
-kimport streamlit as st
+import streamlit as st
 from creator_summarizer import generate_summary, get_transcript_from_youtube
 
 st.set_page_config(page_title="CreatorAI Studio", layout="centered")
