@@ -1,20 +1,20 @@
+import streamlit as st
 from creator_summarizer import generate_summary, get_transcript_from_youtube
 
-# ✅ Declare the video URL FIRST
-video_url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+st.set_page_config(page_title="CreatorAI Studio", page_icon="🎬")
+st.title("🎬 CreatorAI Studio")
 
-# 🎯 Get the transcript from YouTube
-transcript = get_transcript_from_youtube(video_url)
+video_url = st.text_input("📺 Paste YouTube Video URL")
 
-# 🧠 Generate summary
-summary = generate_summary(transcript)
-print("\n🧠 Summary:\n", summary)
+if video_url:
+    with st.spinner("🧠 Fetching transcript..."):
+        transcript = get_transcript_from_youtube(video_url)
 
-# 💾 Save to .txt
-with open("summary.txt", "w") as f_txt:
-    f_txt.write(summary)
+    with st.spinner("🔎 Summarizing..."):
+        summary = generate_summary(transcript)
 
-# 💾 Save to .md
-with open("summary.md", "w") as f_md:
-    f_md.write(f"# 🎥 Summary for {video_url}\n\n{summary}")
+    st.subheader("📄 Summary")
+    st.write(summary)
+
+    st.download_button("⬇️ Download as .txt", summary, file_name="summary.txt")
 
