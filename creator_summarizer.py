@@ -1,19 +1,40 @@
-from transformers import pipeline
-
-# Load Hugging Face summarizer pipeline
-summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
-
-def generate_summary(text):
-    summary = summarizer(text, max_length=130, min_length=30, do_sample=False)
-    return summary[0]['summary_text']
-
+import requests
+import re
 from youtube_transcript_api import YouTubeTranscriptApi
+from youtube_transcript_api._request import TranscriptRequester
 
-def get_transcript_from_youtube(video_url):
-    try:
-        video_id = video_url.split("v=")[-1].split("&")[0]
-        transcript = YouTubeTranscriptApi.get_transcript(video_id)
-        return " ".join([d["text"] for d in transcript])
-    except Exception as e:
-        return f"[Error extracting transcript] {e}"
+# Load cookies from cookies.txt (Netscape format)
+def load_cookies_from_txt():
+    cookies = {}
+    with open("cookies.txt", "r") as f:
+        for line in f:
+            if not line.startswith("#") and line.strip():
+                parts = line.strip().split("\t")
+                if len(parts) >= 7:
+                    cookies[parts[5]] = parts[6]
+    return cookies
+
+# Inject cookies into custom HTTP requester
+class PatchedTranscriptRequester(TranscriptRequester):
+    def __init__(self, cookies):
+        super().__init__()
+        self.session.cookies.update(cookies)
+
+# Extract video ID from YouTube URL
+def extract_video_id(url):
+    match = re.search(r"(?:v=|youtu\.be/)([\w-]{11})", url)
+    return match.group(1) if match else None
+
+# Use custom requester to fetch transcript
+def get_transcript_from_youtube(url):
+    video_id = extract_video_id(url)
+    cookies = load_cookies_from_txt()
+    requester = PatchedTranscriptRequester(cookies)
+    transcript_api = YouTubeTranscriptApi(requester)
+    transcript = transcript_api.get_transcript(video_id)
+    return "\n".join([x['text'] for x in transcript])
+
+# Dummy summary for now (replace with your model logic if needed)
+def generate_summary(text):
+    return "📄 Summary:\n\n" + text[:1000]  # Trimmed for display
 
