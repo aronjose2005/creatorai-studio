@@ -1,0 +1,3 @@
+# 🎥 Summary for https://www.youtube.com/watch?v=dQw4w9WgXcQ
+
+A full commitment's what I'm thinking of. I just wanna tell you how I'm feeling. (Ooh, give you up) We've known each other for so long. Your heart's been aching but you're too shy to say it.
